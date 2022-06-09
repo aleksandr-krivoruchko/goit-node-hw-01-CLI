@@ -1,13 +1,16 @@
 const contactsOperations = require("./contacts");
+const yargs = require("yargs/yargs");
+const { hideBin } = require("yargs/helpers");
+const argv = yargs(hideBin(process.argv)).argv;
 
-async function invokeAction({ action, id, data }) {
+async function invokeAction({ action, id, name, email, phone }) {
   switch (action) {
-    case "getListContacts":
+    case "list":
       const contacts = await contactsOperations.listContacts();
       console.log(contacts);
       break;
 
-    case "getContactById":
+    case "get":
       const contactById = await contactsOperations.getContactById(id);
       if (!contactById) {
         throw new Error(`Contact with id=${id} not found`);
@@ -15,34 +18,23 @@ async function invokeAction({ action, id, data }) {
       console.log(contactById);
       break;
 
-    case "removeContact":
-      await contactsOperations.removeContact(id);
-      console.log("contact removed successfully");
-      break;
-
-    case "addContact":
-      const addedContact = await contactsOperations.addContact(data);
+    case "add":
+      const addedContact = await contactsOperations.addContact(
+        name,
+        email,
+        phone
+      );
       console.log(addedContact);
       break;
 
-    default:
-      console.log("Unknown case");
+    case "remove":
+      const removedContact = await contactsOperations.removeContact(id);
+      console.log(removedContact);
       break;
+
+    default:
+      console.warn("\x1B[31m Unknown action type!");
   }
 }
-// invokeAction({ action: "getListContacts" });
-// invokeAction({ action: "getContactById", id: "3" });
-invokeAction({
-  action: "removeContact",
-  id: 11,
-});
-const newContact = {
-  id: "11",
-  name: "Chuck Norris",
-  email: "norris@anonymus.com",
-  phone: "123-45-68",
-};
-// invokeAction({
-//   action: "addContact",
-//   data: newContact,
-// });
+// invokeAction({ action: "get", id: "5" });
+invokeAction(argv);
